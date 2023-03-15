@@ -92,3 +92,17 @@ def test_book_places_in_past_competitions(clubs, competitions):
     )
     assert response.status_code == 200
 
+
+def test_booking_more_than_12_places(clubs, competitions):
+    """
+    DONNÉ un utilisateur remplissant un formulaire pour réserver une compétition, essayant de réserver plus de 12 places
+    QUAND la page '/purchasePlaces' reçoit la demande de formulaire (POST)
+    ALORS vérifier si le code d'état renvoyé est 200, et si un texte est dans la réponse
+    """
+    with client as c:
+        response = c.post("/purchasePlaces", data={"places": "15",
+                                                   "club": clubs[0]["name"],
+                                                   "competition": competitions[0]["name"]
+                                                   })
+        assert response.status_code == 200
+        assert b"Vous ne pouvez pas reserver plus de 12 places dans un concours."
