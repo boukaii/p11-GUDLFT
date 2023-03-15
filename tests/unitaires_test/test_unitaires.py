@@ -61,6 +61,11 @@ def test_index_url_is_online():
     assert response.status_code == 200
 
 
+def test_valid_email(clubs):
+    response = client.post("/showSummary", data={'email': 'test@test.com'})
+    assert response.status_code == 200
+
+
 def test_check_if_a_user_doesnt_exists():
     """
     Véifier si l'adresse email existe
