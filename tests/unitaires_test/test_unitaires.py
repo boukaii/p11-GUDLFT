@@ -111,3 +111,43 @@ def test_booking_more_than_12_places(clubs, competitions):
                                                    })
         assert response.status_code == 200
         assert b"Vous ne pouvez pas reserver plus de 12 places dans un concours."
+
+
+def test_purchasePlaces_points_deducted(clubs, competitions):
+
+    POINTS_PER_PLACE = 3
+
+    """
+    Vérification de la déduction des points club à l'inscription
+    """
+
+    response = client.post(
+        '/purchasePlaces',
+        data={
+            'club': 'Test',
+            'competition': 'Test Festival 2018',
+            'places': '1'
+        }
+    )
+    assert response.status_code == 200
+    assert server.clubs[0]['points'] == 20 - 1 * POINTS_PER_PLACE
+
+
+def test_purchasePlaces_more_points_allowed(clubs, competitions):
+    """
+        Lorsque l'utilisateur indique plus de lieux d'inscription
+        que de points, il ne déduit pas de points.
+    """
+    response = client.post(
+        '/purchasePlaces',
+        data={
+            'club': 'Test',
+            'competition': 'Test Festival 2018',
+            'places': '1000'
+        }
+    )
+    assert response.status_code == 200
+    assert server.clubs[0]['points'] == "20"
+    assert server.competitions[1]['numberOfPlaces'] == "25"
+
+
