@@ -9,8 +9,23 @@
     Please enter your secretary email to continue:
     <form action="showSummary" method="post">
         <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
+        <input type="email" name="email" id="email"/>
         <button type="submit">Enter</button>
+
     </form>
+    <a href="{{ url_for('board') }}">To the clubs display board</a>-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for category, message in messages %}
+            {% if category == "error" %}
+                <li style="color:red; list-style:none;">{{ message }}</li>
+            {% else %}
+                <li style="list-style:none;">{{message}}</li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 </body>
 </html>
