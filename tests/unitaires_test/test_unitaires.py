@@ -90,12 +90,32 @@ def test_logout_url_redirect_to_index():
     assert response.status_code == 302
 
 
-def test_book_places_in_past_competitions(clubs, competitions):
+def test_competition_booking_url_is_online(competitions):
+    """
+    DONNÉ une demande sur la page de réservation
+    QUAND la page '/book/<competition_name>/<club_name>' reçoit la demande (GET)
+    ALORS vérifier si le code d'état renvoyé est 200, et si un texte est dans la réponse
+    """
+    with client as c:
+        response = c.get("/book/Test%20Festival_2025/Test")
+        assert response.status_code == 200
+        assert b"Test Festival 2025"
 
-    response = client.get(
-        '/book/Test Festival_2025/Test'
-    )
-    assert response.status_code == 200
+
+def test_booking_a_competition(clubs, competitions):
+    """
+    DONNÉ à un utilisateur remplissant un formulaire pour réserver un concours
+    QUAND la page '/purchasePlaces' reçoit la demande de formulaire (POST)
+    ALORS vérifier si le code d'état renvoyé est 200, et si un texte est dans la réponse
+
+    """
+    with client as c:
+        response = c.post("/purchasePlaces", data={"places": "4",
+                                                   "club": clubs[0]["name"],
+                                                   "competition": competitions[0]["name"]
+                                                   })
+        assert response.status_code == 200
+        assert b"Great, booking complete!"
 
 
 def test_booking_more_than_12_places(clubs, competitions):
@@ -113,24 +133,17 @@ def test_booking_more_than_12_places(clubs, competitions):
         assert b"Vous ne pouvez pas reserver plus de 12 places dans un concours."
 
 
-def test_purchasePlaces_points_deducted(clubs, competitions):
+def test_3_points_to_book_a_competition(clubs, competitions):
 
-    POINTS_PER_PLACE = 3
+    old_clubs_points = int(clubs[0]["points"])
 
-    """
-    Vérification de la déduction des points club à l'inscription
-    """
-
-    response = client.post(
-        '/purchasePlaces',
-        data={
-            'club': 'Test',
-            'competition': 'Test Festival 2018',
-            'places': '1'
-        }
-    )
-    assert response.status_code == 200
-    assert server.clubs[0]['points'] == 20 - 1 * POINTS_PER_PLACE
+    with client as c:
+        response = c.post("/purchasePlaces", data={"places": "1",
+                                                   "club": clubs[0]["name"],
+                                                   "competition": competitions[0]["name"]
+                                                   })
+        assert response.status_code == 200
+        assert old_clubs_points - 3 == int(clubs[0]["points"])
 
 
 def test_purchasePlaces_more_points_allowed(clubs, competitions):
@@ -150,4 +163,37 @@ def test_purchasePlaces_more_points_allowed(clubs, competitions):
     assert server.clubs[0]['points'] == "20"
     assert server.competitions[1]['numberOfPlaces'] == "25"
 
+
+def test_book_places_in_past_competitions(clubs, competitions):
+
+    response = client.get(
+        '/book/Test Festival_2025/Test'
+    )
+    assert response.status_code == 200
+
+
+def test_purchasePlaces_points_deducted(clubs, competitions):
+
+    POINTS_PER_PLACE = 3
+
+    """
+    Vérification de la déduction des points club à l'inscription
+    """
+
+
+    response = client.post(
+        '/purchasePlaces',
+        data={
+            'club': 'Test',
+            'competition': 'Test Festival 2018',
+            'places': '1'
+        }
+    )
+    assert response.status_code == 200
+    assert server.clubs[0]['points'] == 20 - 1 * POINTS_PER_PLACE
+
+
+def test_ClubsPoints(clubs, competitions):
+    response = client.get('/board')
+    assert response.status_code == 200
 
