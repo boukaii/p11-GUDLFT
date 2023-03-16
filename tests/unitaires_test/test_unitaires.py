@@ -148,7 +148,7 @@ def test_3_points_to_book_a_competition(clubs, competitions):
 
 def test_purchasePlaces_more_points_allowed(clubs, competitions):
     """
-        Lorsque l'utilisateur indique plus de lieux d'inscription
+        Lorsque l'utilisateur indique plus d'inscription
         que de points, il ne déduit pas de points.
     """
     response = client.post(
