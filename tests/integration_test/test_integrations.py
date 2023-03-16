@@ -36,6 +36,6 @@ class TestPointsUpdate:
             }
         )
 
-        result = self.client.get("/viewClubPoints")
+        result = self.client.get("/board")
 
-        assert result.status_code == 404
+        assert result.status_code == 200
